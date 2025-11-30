@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>裝置感測器</title>
+    <title>Sensor Dashboard</title>
     <style>
         :root {
             --primary-color: #4a90e2;
@@ -30,108 +30,33 @@
             margin: 0 auto;
         }
 
-        /* --- 3D 視覺化區域 --- */
-        .scene-container {
-            width: 100%;
-            height: 300px;
-            background: radial-gradient(circle at center, #e0e5ec 0%, #ffffff 100%);
-            border-radius: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-            perspective: 1000px; /* 3D 透視深度 */
-            overflow: hidden;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
-        }
-
-        /* 手機模型容器 */
-        .phone-model {
-            width: 140px;
-            height: 260px;
-            position: relative;
-            transform-style: preserve-3d;
-            transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
-            transition: transform 0.1s linear; /* 平滑過渡 */
-        }
-
-        /* 手機的六個面 (CSS Cube) */
-        .face {
-            position: absolute;
-            background: #333;
-            border: 1px solid #222;
-            border-radius: 12px;
-            opacity: 0.95;
-        }
-
-        /* 正面 (螢幕) */
-        .front {
-            width: 140px;
-            height: 260px;
-            background: #111;
-            transform: translateZ(10px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border: 4px solid #444;
-            box-shadow: 0 0 15px rgba(0,0,0,0.3);
-        }
-
-        /* 螢幕畫面 */
-        .screen-content {
-            width: 90%;
-            height: 92%;
-            background: linear-gradient(135deg, #4a90e2 0%, #9013fe 100%);
-            border-radius: 4px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 0.8rem;
+        /* --- 標題區 --- */
+        header {
             text-align: center;
-            position: relative;
+            margin-bottom: 30px;
         }
 
-        /* 模擬瀏海/鏡頭 */
-        .notch {
-            position: absolute;
-            top: 5px;
-            width: 40%;
-            height: 10px;
-            background: #000;
-            border-bottom-left-radius: 6px;
-            border-bottom-right-radius: 6px;
+        h2 {
+            margin: 0 0 10px 0;
+            color: var(--text-main);
         }
-
-        /* 背面 */
-        .back {
-            width: 140px;
-            height: 260px;
-            background: #444;
-            transform: translateZ(-10px) rotateY(180deg);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .logo {
-            width: 30px;
-            height: 30px;
-            background: #666;
-            border-radius: 50%;
-        }
-
-        /* 側面 (厚度) - 簡化處理，使用偽元素或額外div */
-        .side-left  { width: 20px; height: 260px; transform: rotateY(-90deg) translateZ(10px); left: -10px; background: #2a2a2a; }
-        .side-right { width: 20px; height: 260px; transform: rotateY(90deg) translateZ(130px); left: -10px; background: #2a2a2a; }
-        .side-top   { width: 140px; height: 20px; transform: rotateX(90deg) translateZ(10px); top: -10px; background: #2a2a2a; }
-        .side-bottom{ width: 140px; height: 20px; transform: rotateX(-90deg) translateZ(250px); top: -10px; background: #2a2a2a; }
-
 
         /* --- 控制區 --- */
         .controls {
             margin-bottom: 25px;
             text-align: center;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            background: #eee;
+            color: #666;
+            font-weight: 500;
+            transition: all 0.3s;
         }
 
         button#actionBtn {
@@ -176,43 +101,36 @@
             border-radius: 12px;
             padding: 16px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.02);
         }
 
         .card h3 {
             margin: 0 0 12px 0;
             font-size: 1rem;
             color: var(--primary-color);
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #f0f0f0;
             padding-bottom: 8px;
         }
 
         .data-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 6px;
+            align-items: center;
+            margin-bottom: 8px;
             font-size: 0.95rem;
             color: var(--text-sub);
         }
 
         .data-val {
-            font-family: 'Courier New', monospace;
+            font-family: 'Courier New', Courier, monospace;
             font-weight: 700;
             color: var(--text-main);
             background: #f0f2f5;
-            padding: 2px 6px;
-            border-radius: 4px;
-            min-width: 70px;
-            text-align: right;
-        }
-
-        .status-badge {
-            display: inline-block;
             padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            margin-bottom: 10px;
-            background: #eee;
-            color: #666;
+            border-radius: 6px;
+            min-width: 75px;
+            text-align: right;
+            letter-spacing: -0.5px;
         }
     </style>
 </head>
@@ -220,21 +138,9 @@
 
 <div class="container">
 
-    <div class="scene-container">
-        <div class="phone-model" id="phone3d">
-            <div class="face front">
-                <div class="screen-content">
-                    <div class="notch"></div>
-                    <div>CSS 3D</div>
-                </div>
-            </div>
-            <div class="face back"><div class="logo"></div></div>
-            <div class="face side-left"></div>
-            <div class="face side-right"></div>
-            <div class="face side-top"></div>
-            <div class="face side-bottom"></div>
-        </div>
-    </div>
+    <header>
+        <h2>感測器數據監控</h2>
+    </header>
 
     <div class="controls">
         <div id="statusBadge" class="status-badge">等待啟動...</div>
@@ -247,7 +153,7 @@
 
     <div class="dashboard">
         <div class="card">
-            <h3>DeviceOrientation (方向)</h3>
+            <h3>DeviceOrientation (方向角度)</h3>
             <div class="data-row">Alpha (Z) <span class="data-val" id="alpha">-</span></div>
             <div class="data-row">Beta (X) <span class="data-val" id="beta">-</span></div>
             <div class="data-row">Gamma (Y) <span class="data-val" id="gamma">-</span></div>
@@ -268,7 +174,7 @@
         </div>
 
         <div class="card">
-            <h3>Gyroscope (轉速)</h3>
+            <h3>Gyroscope (旋轉速率)</h3>
             <div class="data-row">α (Rate) <span class="data-val" id="rAlpha">-</span></div>
             <div class="data-row">β (Rate) <span class="data-val" id="rBeta">-</span></div>
             <div class="data-row">γ (Rate) <span class="data-val" id="rGamma">-</span></div>
@@ -282,7 +188,6 @@
     const btnText = document.getElementById("btnText");
     const btnIcon = document.getElementById("btnIcon");
     const statusBadge = document.getElementById("statusBadge");
-    const phone3d = document.getElementById("phone3d");
 
     // Data Elements
     const els = {
@@ -304,30 +209,12 @@
 
     // --- 事件處理函式 ---
 
-    // 處理方向 (Orientation) 與 3D 翻轉
     function handleOrientation(event) {
-        // 讀取數據 (可能為 null)
-        const alpha = event.alpha || 0; // Z軸 0-360
-        const beta  = event.beta  || 0; // X軸 -180~180 (前後傾斜)
-        const gamma = event.gamma || 0; // Y軸 -90~90 (左右傾斜)
-
-        // 更新文字
-        els.alpha.textContent = alpha.toFixed(1);
-        els.beta.textContent  = beta.toFixed(1);
-        els.gamma.textContent = gamma.toFixed(1);
-
-        // 更新 3D 模型
-        // 注意：CSS 的旋轉軸定義與感測器略有不同，這裡做簡單對應
-        // rotateZ: 對應 Alpha (羅盤)
-        // rotateX: 對應 Beta (前後翻) - 需注意正負方向
-        // rotateY: 對應 Gamma (左右翻) - 需注意正負方向
-        // 加上 transform-origin: center center; (CSS 預設)
-
-        // 減去初始偏移或反轉軸向以符合視覺直覺
-        phone3d.style.transform = `rotateZ(${alpha}deg) rotateX(${beta}deg) rotateY(${gamma}deg)`;
+        els.alpha.textContent = event.alpha?.toFixed(1) ?? "-";
+        els.beta.textContent  = event.beta?.toFixed(1) ?? "-";
+        els.gamma.textContent = event.gamma?.toFixed(1) ?? "-";
     }
 
-    // 處理動作 (Motion)
     function handleMotion(event) {
         const acc = event.acceleration || {};
         els.ax.textContent = acc.x?.toFixed(2) ?? "-";
@@ -361,12 +248,6 @@
 
         isRunning = false;
         updateUIState(false);
-
-        // 重置 3D 模型位置
-        phone3d.style.transform = "rotateX(0deg) rotateY(0deg) rotateZ(0deg)";
-
-        // 可選：重置數值顯示
-        // Object.values(els).forEach(el => el.textContent = "-");
     }
 
     function updateUIState(running) {
@@ -374,35 +255,35 @@
             actionBtn.classList.add("running");
             btnText.textContent = "停止偵測";
             btnIcon.textContent = "⏹";
-            statusBadge.textContent = "🟢 正在接收感測器數據...";
-            statusBadge.style.color = "#28a745";
-            statusBadge.style.background = "#e6f9ed";
+            statusBadge.textContent = "🟢 正在即時監測中";
+            statusBadge.style.color = "#155724";
+            statusBadge.style.background = "#d4edda";
+            statusBadge.style.border = "1px solid #c3e6cb";
         } else {
             actionBtn.classList.remove("running");
             btnText.textContent = "重新開始偵測";
             btnIcon.textContent = "▶";
             statusBadge.textContent = "🔴 偵測已暫停";
-            statusBadge.style.color = "#dc3545";
-            statusBadge.style.background = "#fce8e6";
+            statusBadge.style.color = "#721c24";
+            statusBadge.style.background = "#f8d7da";
+            statusBadge.style.border = "1px solid #f5c6cb";
         }
     }
 
     // --- 按鈕點擊事件 ---
 
     actionBtn.addEventListener("click", async () => {
-        // 如果正在執行，就停止
         if (isRunning) {
             stopSensors();
             return;
         }
 
-        // 如果是停止狀態，嘗試啟動 (需處理授權)
         try {
             // iOS 13+ 權限請求 (Orientation)
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === "function") {
                 const permission = await DeviceOrientationEvent.requestPermission();
                 if (permission !== "granted") {
-                    alert("您拒絕了方向感測器權限");
+                    alert("權限被拒絕：無法存取方向感測器");
                     return;
                 }
             }
@@ -411,12 +292,11 @@
             if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === "function") {
                 const permission = await DeviceMotionEvent.requestPermission();
                 if (permission !== "granted") {
-                    alert("您拒絕了動作感測器權限");
+                    alert("權限被拒絕：無法存取動作感測器");
                     return;
                 }
             }
 
-            // 授權通過或不需要授權，開始監聽
             startSensors();
 
         } catch (error) {
