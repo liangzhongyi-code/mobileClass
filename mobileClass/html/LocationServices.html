@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>裝置狀態監控 - 完整權限管理</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f0f2f5; }
+        .container { max-width: 900px; margin: 30px auto; background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h1 { margin-bottom: 10px; }
+        #status { margin-bottom: 15px; font-size: 16px; color: #333; }
+
+        .btn-group { margin-bottom: 20px; }
+        .permission-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 15px;
+        }
+        .permission-btn:hover { background: #45a049; }
+
+        #stateDisplay {
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            border: 1px solid #ddd;
+            min-height: 200px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>裝置狀態監控</h1>
+    <div id="status">初始化中，請允許位置和感測器權限...</div>
+
+    <div class="btn-group">
+        <button class="permission-btn" onclick="requestPermissionsManually()">請求感測器權限 (iOS)</button>
+        <button class="permission-btn" onclick="deviceManager.setupGeolocation()">重新請求位置權限</button>
+    </div>
+
+    <h3>即時裝置狀態：</h3>
+
+    <div class="dashboard">
+        <div class="card">
+            <h3>地理資訊</h3>
+            <div class="data-row"><span>緯度 (lat)</span><span class="data-val" id="latVal">--</span></div>
+            <div class="data-row"><span>經度 (lng)</span><span class="data-val" id="lngVal">--</span></div>
+            <div class="data-row"><span>精準度 (m)</span><span class="data-val" id="accVal">--</span></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    class DeviceStateManager {
+        constructor() {
+            this.state = {
+                latitude: null,
+                longitude: null,
+                accuracy: null,
+                altitude: null,
+                speed: null,
+                heading: null,
+            };
+            this.updateCallback = null;
+            this.setupGeolocation();
+        }
+
+        setUpdateCallback(cb) {
+            this.updateCallback = cb;
+        }
+
+        _emitUpdate() {
+            if (this.updateCallback) this.updateCallback(this.state);
+        }
+
+        setupGeolocation() {
+            if (!navigator.geolocation) return;
+            navigator.geolocation.watchPosition(
+                (pos) => {
+                    const c = pos.coords;
+                    this.state.latitude = c.latitude;
+                    this.state.longitude = c.longitude;
+                    this.state.accuracy = c.accuracy;
+                    this.state.altitude = c.altitude;
+                    this.state.speed = c.speed;
+                    this.state.heading = c.heading;
+                    this._emitUpdate();
+                },
+                (err) => console.error('地理位置錯誤:', err),
+                { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+            );
+        }
+
+        getState() {
+            return this.state;
+        }
+    }
+
+    const deviceManager = new DeviceStateManager();
+    const stateDisplay = document.getElementById('stateDisplay');
+    const statusDiv = document.getElementById('status');
+
+    deviceManager.setUpdateCallback((state) => {
+        statusDiv.textContent = '資料收集中...';
+        const safe = (v) => (v === null || v === undefined ? '--' : v);
+        document.getElementById('latVal').textContent = safe(state.latitude);
+        document.getElementById('lngVal').textContent = safe(state.longitude);
+        document.getElementById('accVal').textContent = safe(state.accuracy);
+    });
+    statusDiv.textContent = '資料收集中...';
+
+    function requestPermissionsManually() {
+        if (typeof DeviceMotionEvent?.requestPermission === 'function') {
+            DeviceMotionEvent.requestPermission().then((p) => {
+                if (p === 'granted') console.log('運動感測器權限已授予');
+            });
+        }
+
+        if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
+            DeviceOrientationEvent.requestPermission().then((p) => {
+                if (p === 'granted') console.log('方向感測器權限已授予');
+            });
+        }
+    }
+
+    setInterval(() => {
+        console.log('當前裝置狀態:', deviceManager.getState());
+    }, 5000);
+</script>
+</body>
+</html>
