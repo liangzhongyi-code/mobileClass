@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GET vs POST Fetch Demo</title>
+    <style>
+        body { font-family: "Microsoft JhengHei", sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: inline-block; width: 60px; font-weight: bold;}
+        input, select { padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
+
+        button { padding: 10px 20px; cursor: pointer; margin-right: 10px; border-radius: 5px; font-size: 14px;}
+        #btnGet { background-color: #28a745; color: white; border: none; }
+        #btnGet:hover { background-color: #218838; }
+
+        #btnPost { background-color: #007bff; color: white; border: none; }
+        #btnPost:hover { background-color: #0069d9; }
+
+        .output-area { margin-top: 20px; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 5px; overflow-x: auto; font-family: Consolas, monospace; }
+    </style>
+</head>
+<body>
+<h1>表單發送資訊測試</h1>
+
+<div class="container">
+    <form id="userForm">
+        <div class="form-group">
+            <label>姓名:</label>
+            <input type="text" name="name" value="Jimmy">
+        </div>
+        <div class="form-group">
+            <label>性別:</label>
+            <select name="gender">
+                <option value="male">男</option>
+                <option value="female">女</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>年齡:</label>
+            <input type="number" name="age" value="25">
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button type="button" id="btnGet">發送 GET 請求</button>
+            <button type="button" id="btnPost">發送 POST 請求</button>
+        </div>
+    </form>
+
+    <div class="output-area">
+        <h3>伺服器回應結果:</h3>
+        <pre id="jsonOutput">// 點擊按鈕後，結果會顯示在這裡...</pre>
+    </div>
+</div>
+
+<script>
+    // 取得 DOM 元素
+    const form = document.getElementById('userForm');
+    const jsonOutput = document.getElementById('jsonOutput');
+    const btnGet = document.getElementById('btnGet');
+    const btnPost = document.getElementById('btnPost');
+
+    // 輔助函式：顯示載入中
+    function showLoading() {
+        jsonOutput.textContent = "資料傳送中，請稍候...";
+        jsonOutput.style.color = "#aaa";
+    }
+
+    // --- 1. GET 請求邏輯 ---
+    btnGet.addEventListener('click', async () => {
+        showLoading();
+        // 收集資料
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData).toString();
+
+        try {
+            // GET: 參數放在 URL
+            let response = await fetch(`https://httpbin.org/get?${params}`, {
+                method: 'GET'
+            });
+            let result = await response.json();
+
+            // 恢復文字顏色
+            jsonOutput.style.color = "#f8f8f2";
+
+            // GET 練習中，通常我們只看 'args' (網址參數)
+            // 為了方便閱讀，我加了註解說明
+            const displayData = {
+                "說明": "這是 GET 請求，伺服器收到的參數如下",
+                "收到參數 (args)": result.args,
+                "完整回應預覽": result // 也可以顯示這個看全部
+            };
+
+            jsonOutput.textContent = JSON.stringify(displayData, null, 2);
+        } catch (error) {
+            jsonOutput.textContent = "發生錯誤: " + error;
+            jsonOutput.style.color = "red";
+        }
+    });
+
+    // --- 2. POST 請求邏輯 (這裡改了!) ---
+    btnPost.addEventListener('click', async () => {
+        showLoading();
+
+        // 收集資料並轉為一般 Object
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            // POST: 資料放在 body
+            let response = await fetch('https://httpbin.org/post', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // 告訴伺服器我們傳的是 JSON
+                },
+                body: JSON.stringify(data)
+            });
+            let result = await response.json();
+
+            jsonOutput.style.color = "#f8f8f2";
+
+            // ★★★ 關鍵修改在這裡 ★★★
+            // 這裡直接顯示 result (整個物件)，而不是 result.json
+            // 這樣你就能看到包含 headers, origin, data, json 等全部資訊
+            jsonOutput.textContent = JSON.stringify(result, null, 2);
+
+        } catch (error) {
+            jsonOutput.textContent = "發生錯誤: " + error;
+            jsonOutput.style.color = "red";
+        }
+    });
+</script>
+</body>
+</html>
