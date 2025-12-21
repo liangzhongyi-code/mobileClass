@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>getUserMedia 相機範例</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+        }
+
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+            margin-bottom: 1.5rem;
+        }
+
+        button:hover {
+            background-color: #2563eb;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        video {
+            width: 100%;
+            border-radius: 12px;
+            background-color: #000;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: block; /* Removes bottom space */
+        }
+
+        .error-msg {
+            color: #ef4444;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>相機與麥克風測試</h1>
+    <button id="btn">啟用相機</button>
+    <video id="video" autoplay playsinline></video>
+    <p id="errorMsg" class="error-msg"></p>
+</div>
+
+<script>
+    const btn = document.getElementById('btn');
+    const video = document.getElementById('video');
+    const errorMsg = document.getElementById('errorMsg');
+
+    btn.onclick = async () => {
+        // Reset error message
+        errorMsg.style.display = 'none';
+        errorMsg.textContent = '';
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: true
+            });
+
+            video.srcObject = stream;
+            btn.textContent = '相機已啟用';
+            btn.disabled = true;
+            btn.style.backgroundColor = '#10b981'; // Green color for success
+            btn.style.cursor = 'default';
+
+        } catch (err) {
+            console.error(err);
+            errorMsg.textContent = '無法取得相機或麥克風權限：' + err.message;
+            errorMsg.style.display = 'block';
+        }
+    };
+</script>
+
+</body>
+</html>
