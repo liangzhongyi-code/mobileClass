@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>目前位置天氣查詢</title>
+    <title>台灣天氣查詢</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -11,36 +12,44 @@
             padding: 20px;
             background-color: #f0f2f5;
         }
+
         .container {
             max-width: 500px;
             margin: 20px auto;
             background: white;
             padding: 25px;
             border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             text-align: center;
         }
+
         h1 {
             color: #333;
             margin-bottom: 20px;
             font-size: 1.5rem;
         }
+
         .icon {
             font-size: 3rem;
             margin-bottom: 10px;
             display: block;
         }
+
         .form-group {
             margin-bottom: 20px;
             text-align: left;
         }
+
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
             color: #555;
         }
-        input[type="text"] {
+
+        input[type="text"],
+        input[type="date"],
+        select {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
@@ -49,33 +58,43 @@
             font-size: 14px;
             background-color: #fafafa;
         }
+
+        select {
+            cursor: pointer;
+        }
+
         button {
             width: 100%;
             padding: 16px;
             background: linear-gradient(135deg, #007bff, #0056b3);
             color: white;
             border: none;
-            border-radius: 50px; /* 圓角按鈕 */
+            border-radius: 50px;
+            /* 圓角按鈕 */
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
             transition: transform 0.2s, box-shadow 0.2s;
         }
+
         button:active {
             transform: scale(0.98);
         }
+
         button:disabled {
             background: #ccc;
             cursor: not-allowed;
             box-shadow: none;
         }
+
         #status {
             margin-top: 20px;
             color: #666;
             font-size: 0.9rem;
             white-space: pre-wrap;
         }
+
         /* 天氣卡片樣式 */
         .weather-card {
             margin-top: 25px;
@@ -87,17 +106,20 @@
             display: none;
             animation: fadeIn 0.5s ease;
         }
+
         .location-title {
             font-size: 1.4rem;
             font-weight: bold;
             color: #00838f;
             margin-bottom: 10px;
         }
+
         .weather-info {
             font-size: 1.1rem;
             margin: 8px 0;
             color: #333;
         }
+
         .hint {
             font-size: 0.8rem;
             color: #999;
@@ -105,190 +127,395 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <span class="icon">🌤️</span>
-    <h1>目前位置天氣</h1>
+    <div class="container">
+        <span class="icon">🌤️</span>
+        <h1>台灣天氣查詢</h1>
 
-    <button id="btnGetWeather">📍 定位並查詢天氣</button>
+        <!-- 新增：手動查詢區域 -->
+        <div class="form-group">
+            <label for="selectDate">選擇日期</label>
+            <input type="date" id="selectDate" />
+        </div>
 
-    <div id="status"></div>
-    
-    <div id="weatherResult" class="weather-card">
-        <!-- 天氣結果將顯示於此 -->
+        <div class="form-group">
+            <label for="selectCity">選擇縣市</label>
+            <select id="selectCity">
+                <option value="">請選擇縣市</option>
+                <option value="基隆市">基隆市</option>
+                <option value="臺北市">臺北市</option>
+                <option value="新北市">新北市</option>
+                <option value="桃園市">桃園市</option>
+                <option value="新竹市">新竹市</option>
+                <option value="新竹縣">新竹縣</option>
+                <option value="苗栗縣">苗栗縣</option>
+                <option value="臺中市">臺中市</option>
+                <option value="彰化縣">彰化縣</option>
+                <option value="南投縣">南投縣</option>
+                <option value="雲林縣">雲林縣</option>
+                <option value="嘉義市">嘉義市</option>
+                <option value="嘉義縣">嘉義縣</option>
+                <option value="臺南市">臺南市</option>
+                <option value="高雄市">高雄市</option>
+                <option value="屏東縣">屏東縣</option>
+                <option value="宜蘭縣">宜蘭縣</option>
+                <option value="花蓮縣">花蓮縣</option>
+                <option value="臺東縣">臺東縣</option>
+                <option value="澎湖縣">澎湖縣</option>
+                <option value="金門縣">金門縣</option>
+                <option value="連江縣">連江縣</option>
+            </select>
+        </div>
+
+        <button id="btnQueryBySelection">🔍 查詢天氣</button>
+
+        <div style="margin: 25px 0; text-align: center; color: #ccc; font-size: 14px;">
+            或
+        </div>
+
+        <button id="btnGetWeather">📍 定位並查詢天氣</button>
+
+        <div id="status"></div>
+
+        <div id="weatherResult" class="weather-card">
+            <!-- 天氣結果將顯示於此 -->
+        </div>
     </div>
-</div>
 
-<script>
-    const btn = document.getElementById('btnGetWeather');
-    const statusDiv = document.getElementById('status');
-    const resultDiv = document.getElementById('weatherResult');
-    
-    // 直接定義 API Key
-    const API_KEY = 'CWA-BF6FB0B4-8AEB-4B89-B3FA-8B2AAD8F325E';
+    <script>
+        const btn = document.getElementById('btnGetWeather');
+        const btnQuery = document.getElementById('btnQueryBySelection');
+        const statusDiv = document.getElementById('status');
+        const resultDiv = document.getElementById('weatherResult');
+        const dateInput = document.getElementById('selectDate');
+        const citySelect = document.getElementById('selectCity');
 
-    // 台灣各縣市中心座標 (用於判斷最近的城市)
-    const taiwanCities = [
-        { name: "基隆市", lat: 25.1276, lon: 121.7392 },
-        { name: "臺北市", lat: 25.0330, lon: 121.5654 },
-        { name: "新北市", lat: 25.0170, lon: 121.4625 },
-        { name: "桃園市", lat: 24.9936, lon: 121.3010 },
-        { name: "新竹市", lat: 24.8138, lon: 120.9675 },
-        { name: "新竹縣", lat: 24.8397, lon: 121.0152 },
-        { name: "苗栗縣", lat: 24.5606, lon: 120.8214 },
-        { name: "臺中市", lat: 24.1477, lon: 120.6736 },
-        { name: "彰化縣", lat: 24.0518, lon: 120.5161 },
-        { name: "南投縣", lat: 23.9610, lon: 120.6967 },
-        { name: "雲林縣", lat: 23.7092, lon: 120.4313 },
-        { name: "嘉義市", lat: 23.4801, lon: 120.4491 },
-        { name: "嘉義縣", lat: 23.4518, lon: 120.2555 },
-        { name: "臺南市", lat: 22.9997, lon: 120.2270 },
-        { name: "高雄市", lat: 22.6273, lon: 120.3014 },
-        { name: "屏東縣", lat: 22.6745, lon: 120.4881 },
-        { name: "宜蘭縣", lat: 24.7517, lon: 121.7483 },
-        { name: "花蓮縣", lat: 23.9872, lon: 121.6016 },
-        { name: "臺東縣", lat: 22.7583, lon: 121.1444 },
-        { name: "澎湖縣", lat: 23.5712, lon: 119.5797 },
-        { name: "金門縣", lat: 24.4404, lon: 118.3226 },
-        { name: "連江縣", lat: 26.1580, lon: 119.9510 }
-    ];
+        // 直接定義 API Key
+        const API_KEY = 'CWA-BF6FB0B4-8AEB-4B89-B3FA-8B2AAD8F325E';
 
-    btn.addEventListener('click', () => {
-        // 1. 初始化 UI
-        statusDiv.style.display = 'block';
-        statusDiv.textContent = '🛰️ 正在定位中...';
-        resultDiv.style.display = 'none';
-        btn.disabled = true;
-        btn.textContent = '處理中...';
+        // 設定日期選擇器的預設值為今天
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
 
-        // 2. 取得地理位置
-        if (!navigator.geolocation) {
-            statusDiv.textContent = '您的瀏覽器不支援地理定位功能。';
-            resetBtn();
-            return;
-        }
+        // 設定日期選擇器的範圍 (今天到一週後)
+        dateInput.min = today;
+        const maxDate = new Date();
+        maxDate.setDate(maxDate.getDate() + 7);
+        dateInput.max = maxDate.toISOString().split('T')[0];
 
-        navigator.geolocation.getCurrentPosition(success, error);
+        // 台灣各縣市中心座標與 API 代碼
+        const taiwanCities = [
+            { name: "基隆市", apiCode: "F-D0047-051", lat: 25.1276, lon: 121.7392 },
+            { name: "臺北市", apiCode: "F-D0047-063", lat: 25.0330, lon: 121.5654 },
+            { name: "新北市", apiCode: "F-D0047-071", lat: 25.0170, lon: 121.4625 },
+            { name: "桃園市", apiCode: "F-D0047-007", lat: 24.9936, lon: 121.3010 },
+            { name: "新竹市", apiCode: "F-D0047-055", lat: 24.8138, lon: 120.9675 },
+            { name: "新竹縣", apiCode: "F-D0047-011", lat: 24.8397, lon: 121.0152 },
+            { name: "苗栗縣", apiCode: "F-D0047-015", lat: 24.5606, lon: 120.8214 },
+            { name: "臺中市", apiCode: "F-D0047-075", lat: 24.1477, lon: 120.6736 },
+            { name: "彰化縣", apiCode: "F-D0047-019", lat: 24.0518, lon: 120.5161 },
+            { name: "南投縣", apiCode: "F-D0047-023", lat: 23.9610, lon: 120.6967 },
+            { name: "雲林縣", apiCode: "F-D0047-027", lat: 23.7092, lon: 120.4313 },
+            { name: "嘉義市", apiCode: "F-D0047-059", lat: 23.4801, lon: 120.4491 },
+            { name: "嘉義縣", apiCode: "F-D0047-031", lat: 23.4518, lon: 120.2555 },
+            { name: "臺南市", apiCode: "F-D0047-079", lat: 22.9997, lon: 120.2270 },
+            { name: "高雄市", apiCode: "F-D0047-067", lat: 22.6273, lon: 120.3014 },
+            { name: "屏東縣", apiCode: "F-D0047-035", lat: 22.6745, lon: 120.4881 },
+            { name: "宜蘭縣", apiCode: "F-D0047-003", lat: 24.7517, lon: 121.7483 },
+            { name: "花蓮縣", apiCode: "F-D0047-043", lat: 23.9872, lon: 121.6016 },
+            { name: "臺東縣", apiCode: "F-D0047-047", lat: 22.7583, lon: 121.1444 },
+            { name: "澎湖縣", apiCode: "F-D0047-039", lat: 23.5712, lon: 119.5797 },
+            { name: "金門縣", apiCode: "F-D0047-083", lat: 24.4404, lon: 118.3226 },
+            { name: "連江縣", apiCode: "F-D0047-087", lat: 26.1580, lon: 119.9510 }
+        ];
 
-        function success(position) {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
+        // 新增：手動查詢按鈕事件
+        btnQuery.addEventListener('click', () => {
+            const selectedCity = citySelect.value;
+            const selectedDate = dateInput.value;
 
-            statusDiv.textContent = `定位成功！\n正在查詢天氣...`;
-
-            // 3. 呼叫氣象署 API
-            fetchWeather(API_KEY, lat, lng);
-        }
-
-        function error(err) {
-            statusDiv.textContent = `定位失敗: ${err.message}\n(請確認已開啟手機 GPS 並允許定位權限)`;
-            resetBtn();
-        }
-    });
-
-    function fetchWeather(key, userLat, userLng) {
-        const url = `https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=${key}&format=JSON`;
-
-        fetch(url)
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (data.success === 'true') {
-                    const nearestCity = getNearestCity(userLat, userLng);
-                    const locationData = data.records.location.find(loc => loc.locationName === nearestCity.name);
-                    
-                    if (locationData) {
-                        displayWeather(locationData, nearestCity.name);
-                    } else {
-                        statusDiv.textContent = `找不到 ${nearestCity.name} 的資料。`;
-                    }
-                } else {
-                    statusDiv.textContent = 'API 驗證失敗。';
-                }
-            })
-            .catch(e => {
-                statusDiv.textContent = `連線錯誤: ${e.message}`;
-            })
-            .finally(() => {
-                resetBtn();
-            });
-    }
-
-    // 計算距離並找出最近的縣市
-    function getNearestCity(lat, lon) {
-        let minDistance = Infinity;
-        let nearest = null;
-
-        taiwanCities.forEach(city => {
-            const d = getDistanceFromLatLonInKm(lat, lon, city.lat, city.lon);
-            if (d < minDistance) {
-                minDistance = d;
-                nearest = city;
+            if (!selectedCity) {
+                alert('請選擇縣市！');
+                return;
             }
+
+            if (!selectedDate) {
+                alert('請選擇日期！');
+                return;
+            }
+
+            // 初始化 UI
+            statusDiv.style.display = 'block';
+            statusDiv.textContent = '🔍 正在查詢天氣...';
+            resultDiv.style.display = 'none';
+            btnQuery.disabled = true;
+            btnQuery.textContent = '處理中...';
+
+            // 查詢指定縣市的天氣
+            fetchWeatherByCity(selectedCity, selectedDate);
         });
-        return nearest;
-    }
 
-    // 顯示單一縣市的天氣
-    function displayWeather(location, cityName) {
-        const weatherElement = location.weatherElement;
-        
-        // 解析需要的氣象因子
-        // Wx: 天氣現象, PoP: 降雨機率, MinT: 最低溫, CI: 舒適度, MaxT: 最高溫
-        const getVal = (code) => weatherElement.find(el => el.elementName === code).time[0].parameter.parameterName;
-        
-        const wx = getVal('Wx');
-        const pop = getVal('PoP');
-        const minT = getVal('MinT');
-        const maxT = getVal('MaxT');
-        const ci = getVal('CI');
-        const timeInfo = weatherElement[0].time[0]; // 時間區段
+        // 根據縣市查詢天氣的函數
+        function fetchWeatherByCity(cityName, selectedDate) {
+            // 找出該縣市對應的 API 代碼
+            const cityInfo = taiwanCities.find(city => city.name === cityName);
+            if (!cityInfo) {
+                statusDiv.textContent = `找不到 ${cityName} 的資料。`;
+                resetBtnQuery();
+                return;
+            }
 
-        // 顯示內容
-        resultDiv.innerHTML = `
+            const url = `https://opendata.cwa.gov.tw/api/v1/rest/datastore/${cityInfo.apiCode}?Authorization=${API_KEY}&format=JSON`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('API Response:', data);
+
+                    if (data.success === 'true' && data.records && data.records.Locations) {
+                        // 新 API 格式：data.records.Locations[0].Location[0]
+                        const locations = data.records.Locations[0];
+                        if (locations && locations.Location && locations.Location.length > 0) {
+                            displayWeatherByDate(locations.Location[0], cityName, selectedDate);
+                        } else {
+                            statusDiv.textContent = `找不到 ${cityName} 的資料。`;
+                        }
+                    } else {
+                        statusDiv.textContent = 'API 驗證失敗或資料格式錯誤。';
+                    }
+                })
+                .catch(e => {
+                    statusDiv.textContent = `連線錯誤: ${e.message}`;
+                })
+                .finally(() => {
+                    resetBtnQuery();
+                });
+        }
+
+        // 根據選定日期顯示天氣
+        function displayWeatherByDate(location, cityName, selectedDate) {
+            const weatherElement = location.WeatherElement;
+
+            // 找出符合的時段
+            let targetData = null;
+
+            // 取得第一個 element 的時間資訊來尋找符合的時段
+            if (weatherElement && weatherElement.length > 0 && weatherElement[0].Time) {
+                const timeSlots = weatherElement[0].Time;
+
+                for (let i = 0; i < timeSlots.length; i++) {
+                    const slot = timeSlots[i];
+                    const startTime = new Date(slot.StartTime);
+                    const selected = new Date(selectedDate);
+
+                    // 只比較日期部分
+                    if (selected.toDateString() === startTime.toDateString()) {
+                        targetData = { slot: slot, index: i };
+                        break;
+                    }
+                }
+
+                if (!targetData) {
+                    // 如果找不到符合的時段，使用第一個時段
+                    targetData = { slot: timeSlots[0], index: 0 };
+                }
+            }
+
+            // 解析需要的氣象因子
+            const getVal = (elementName) => {
+                const element = weatherElement.find(el => el.ElementName === elementName);
+                if (element && element.Time && element.Time[targetData.index]) {
+                    const timeData = element.Time[targetData.index];
+                    if (timeData.ElementValue && timeData.ElementValue[0]) {
+                        // 取得第一個可用的值
+                        const firstValue = timeData.ElementValue[0];
+                        return firstValue[Object.keys(firstValue)[0]] || 'N/A';
+                    }
+                }
+                return 'N/A';
+            };
+
+            const wx = getVal('天氣現象');  // 天氣現象
+            const pop = getVal('12小時降雨機率');  // 降雨機率
+            const minT = getVal('最低溫度');  // 最低溫度
+            const maxT = getVal('最高溫度');  // 最高溫度
+            const ci = getVal('最大舒適度指數');  // 舒適度
+
+            // 顯示內容
+            resultDiv.innerHTML = `
             <div class="location-title">📍 ${cityName}</div>
             <div class="weather-info"><b>${wx}</b></div>
             <div class="weather-info">🌡️ 氣溫：${minT}°C ~ ${maxT}°C</div>
             <div class="weather-info">☔ 降雨機率：${pop}%</div>
             <div class="weather-info">😊 舒適度：${ci}</div>
-            <div class="hint">預報時間：${timeInfo.startTime.split(' ')[1].slice(0,5)} ~ ${timeInfo.endTime.split(' ')[1].slice(0,5)}</div>
+            <div class="hint">預報時間：${targetData.slot.StartTime.split('T')[0]} ${targetData.slot.StartTime.split('T')[1].slice(0, 5)} ~ ${targetData.slot.EndTime.split('T')[1].slice(0, 5)}</div>
         `;
-        
-        resultDiv.style.display = 'block';
-        statusDiv.style.display = 'none'; // 隱藏狀態文字，讓畫面乾淨
-    }
 
-    function resetBtn() {
-        btn.disabled = false;
-        btn.textContent = '📍 定位並查詢天氣';
-    }
+            resultDiv.style.display = 'block';
+            statusDiv.style.display = 'none'; // 隱藏狀態文字，讓畫面乾淨
+        }
 
-    // 計算兩點經緯度距離 (Haversine formula)
-    function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-        var R = 6371; // 地球半徑 (km)
-        var dLat = deg2rad(lat2 - lat1);
-        var dLon = deg2rad(lon2 - lon1);
-        var a =
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        var d = R * c; // Distance in km
-        return d;
-    }
+        function resetBtnQuery() {
+            btnQuery.disabled = false;
+            btnQuery.textContent = '🔍 查詢天氣';
+        }
 
-    function deg2rad(deg) {
-        return deg * (Math.PI / 180);
-    }
-</script>
+        btn.addEventListener('click', () => {
+            // 1. 初始化 UI
+            statusDiv.style.display = 'block';
+            statusDiv.textContent = '🛰️ 正在定位中...';
+            resultDiv.style.display = 'none';
+            btn.disabled = true;
+            btn.textContent = '處理中...';
+
+            // 2. 取得地理位置
+            if (!navigator.geolocation) {
+                statusDiv.textContent = '您的瀏覽器不支援地理定位功能。';
+                resetBtn();
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(success, error);
+
+            function success(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+
+                statusDiv.textContent = `定位成功！\n正在查詢天氣...`;
+
+                // 3. 呼叫氣象署 API
+                fetchWeather(lat, lng);
+            }
+
+            function error(err) {
+                statusDiv.textContent = `定位失敗: ${err.message}\n(請確認已開啟手機 GPS 並允許定位權限)`;
+                resetBtn();
+            }
+        });
+
+        function fetchWeather(userLat, userLng) {
+            const nearestCity = getNearestCity(userLat, userLng);
+            const url = `https://opendata.cwa.gov.tw/api/v1/rest/datastore/${nearestCity.apiCode}?Authorization=${API_KEY}&format=JSON`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success === 'true' && data.records && data.records.Locations) {
+                        const locations = data.records.Locations[0];
+                        if (locations && locations.Location && locations.Location.length > 0) {
+                            displayWeather(locations.Location[0], nearestCity.name);
+                        } else {
+                            statusDiv.textContent = `找不到 ${nearestCity.name} 的資料。`;
+                        }
+                    } else {
+                        statusDiv.textContent = 'API 驗證失敗。';
+                    }
+                })
+                .catch(e => {
+                    statusDiv.textContent = `連線錯誤: ${e.message}`;
+                })
+                .finally(() => {
+                    resetBtn();
+                });
+        }
+
+        // 計算距離並找出最近的縣市
+        function getNearestCity(lat, lon) {
+            let minDistance = Infinity;
+            let nearest = null;
+
+            taiwanCities.forEach(city => {
+                const d = getDistanceFromLatLonInKm(lat, lon, city.lat, city.lon);
+                if (d < minDistance) {
+                    minDistance = d;
+                    nearest = city;
+                }
+            });
+            return nearest;
+        }
+
+        // 顯示單一縣市的天氣（GPS 定位使用，顯示當前時段）
+        function displayWeather(location, cityName) {
+            const weatherElement = location.WeatherElement;
+
+            // 解析需要的氣象因子（取第一個時段，即最近的預報）
+            const getVal = (elementName) => {
+                const element = weatherElement.find(el => el.ElementName === elementName);
+                if (element && element.Time && element.Time[0]) {
+                    const timeData = element.Time[0];
+                    if (timeData.ElementValue && timeData.ElementValue[0]) {
+                        const firstValue = timeData.ElementValue[0];
+                        return firstValue[Object.keys(firstValue)[0]] || 'N/A';
+                    }
+                }
+                return 'N/A';
+            };
+
+            const wx = getVal('天氣現象');  // 天氣現象
+            const pop = getVal('12小時降雨機率');  // 降雨機率
+            const minT = getVal('最低溫度');  // 最低溫度
+            const maxT = getVal('最高溫度');  // 最高溫度
+            const ci = getVal('最大舒適度指數');  // 舒適度
+            const timeInfo = weatherElement[0].Time[0]; // 時間區段
+
+            // 顯示內容
+            resultDiv.innerHTML = `
+            <div class="location-title">📍 ${cityName}</div>
+            <div class="weather-info"><b>${wx}</b></div>
+            <div class="weather-info">🌡️ 氣溫：${minT}°C ~ ${maxT}°C</div>
+            <div class="weather-info">☔ 降雨機率：${pop}%</div>
+            <div class="weather-info">😊 舒適度：${ci}</div>
+            <div class="hint">預報時間：${timeInfo.StartTime.split('T')[0]} ${timeInfo.StartTime.split('T')[1].slice(0, 5)} ~ ${timeInfo.EndTime.split('T')[1].slice(0, 5)}</div>
+        `;
+
+            resultDiv.style.display = 'block';
+            statusDiv.style.display = 'none'; // 隱藏狀態文字，讓畫面乾淨
+        }
+
+        function resetBtn() {
+            btn.disabled = false;
+            btn.textContent = '📍 定位並查詢天氣';
+        }
+
+        // 計算兩點經緯度距離 (Haversine formula)
+        function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+            var R = 6371; // 地球半徑 (km)
+            var dLat = deg2rad(lat2 - lat1);
+            var dLon = deg2rad(lon2 - lon1);
+            var a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            var d = R * c; // Distance in km
+            return d;
+        }
+
+        function deg2rad(deg) {
+            return deg * (Math.PI / 180);
+        }
+    </script>
 
 </body>
+
 </html>
